@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>MindAttic.Browser</AssemblyName>
+    <RootNamespace>MindAttic.Browser</RootNamespace>
+    <Product>MindAttic Browser</Product>
+    <!-- HOUSE-LAW-1: whole-number versions only; bump the major. -->
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- From C:\LocalNuGet (see NuGet.config): MindAttic.Capture repacks these with tools in that repo. -->
+    <PackageReference Include="MindAttic.Capture.Wpf" Version="1.0.0" />
+    <PackageReference Include="MindAttic.Capture.WebView2" Version="1.0.0" />
+    <PackageReference Include="MindAttic.Vault" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3179.45" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="MindAttic.Browser.Tests" />
+  </ItemGroup>
+
+</Project>
