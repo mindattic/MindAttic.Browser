@@ -14,7 +14,7 @@
   <ItemGroup>
     <!-- From C:\LocalNuGet (see NuGet.config): MindAttic.Capture repacks these with tools in that repo. -->
     <PackageReference Include="MindAttic.Capture.Wpf" Version="1.0.0" />
-    <PackageReference Include="MindAttic.Capture.WebView2" Version="1.0.0" />
+    <PackageReference Include="MindAttic.Capture.WebView2" Version="2.0.0" />
     <PackageReference Include="MindAttic.Vault" Version="5.0.0" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3179.45" />
   </ItemGroup>

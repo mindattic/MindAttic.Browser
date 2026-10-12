@@ -41,9 +41,10 @@ cd ..\MindAttic.Capture
 dotnet pack -c Release -o C:\LocalNuGet
 .\tools\install.ps1                      # optional: the capture agent, so recordings export after the browser closes
 cd ..\MindAttic.Browser
-.\tools\install.ps1                      # publishes to %LOCALAPPDATA%\MindAttic\Browser\bin (add -AddToPath)
-MindAttic.Browser.exe https://example.com
+.\tools\deploy.ps1 -Launch https://example.com
 ```
+
+`deploy.ps1` always rebuilds and republishes to `C:\Apps\MindAttic.Browser\` before launching — the same process Automata, JobHunt and KdpPublish use — so every run is current source, never a stale install. It never kills a deployed instance that's still open (it might be mid-recording): it asks it to close, waits up to 30s, and if it's still there, just launches that build as-is instead of forcing a rebuild. `C:\Apps\MindAttic.Browser\launch.bat` repeats the redeploy before every subsequent launch and forwards its arguments, so other tools (like MindAttic.Web's `capture.ps1`) can call it exactly like the exe itself.
 
 You should see the page with the toolbar above it. Press Ctrl+Shift+S, then Enter: the status bar says where the screenshot was saved and that it is on the clipboard.
 
@@ -83,7 +84,7 @@ The capture folder defaults to `R:\MindAttic\Capture`, or `Pictures\MindAttic Br
 MindAttic.Browser/
   src/MindAttic.Browser/        the WPF app: MainWindow, CropWindow, SettingsWindow, settings, favorites, naming
   tests/MindAttic.Browser.Tests NUnit: targets, search, favorites, settings round-trip, file names, crop geometry
-  tools/install.ps1             publish to %LOCALAPPDATA%\MindAttic\Browser\bin
+  tools/deploy.ps1               rebuild + publish to C:\Apps\MindAttic.Browser\, write its self-redeploying launch.bat
   docs/images/                  README screenshots
 ```
 
