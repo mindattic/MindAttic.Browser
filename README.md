@@ -41,10 +41,10 @@ cd ..\MindAttic.Capture
 dotnet pack -c Release -o C:\LocalNuGet
 .\tools\install.ps1                      # optional: the capture agent, so recordings export after the browser closes
 cd ..\MindAttic.Browser
-.\tools\deploy.ps1 -Launch https://example.com
+.\deploy.ps1 -Launch https://example.com
 ```
 
-`deploy.ps1` always rebuilds and republishes to `C:\Apps\MindAttic.Browser\` before launching — the same process Automata, JobHunt and KdpPublish use — so every run is current source, never a stale install. It never kills a deployed instance that's still open (it might be mid-recording): it asks it to close, waits up to 30s, and if it's still there, just launches that build as-is instead of forcing a rebuild. `C:\Apps\MindAttic.Browser\launch.bat` repeats the redeploy before every subsequent launch and forwards its arguments, so other tools (like MindAttic.Web's `capture.ps1`) can call it exactly like the exe itself.
+`deploy.ps1` republishes to `C:\Apps\MindAttic.Browser\` only when something changed: a source file newer than the deployed exe, a newer `MindAttic.Capture*.nupkg` in `C:\LocalNuGet`, or a missing exe or `deploy.bat`. Otherwise it is a fast no-op. `deploy.ps1 -Force` always does a clean bin/obj rebuild. Before publishing, it asks a deployed instance that's still open (it might be mid-recording) to close and waits up to 30s; if it's still there, it keeps that build instead of killing it. The desktop shortcut points at `C:\Apps\MindAttic.Browser\deploy.bat`, which runs `deploy.ps1` before every launch and forwards its arguments, so `deploy.bat <url> -capture video` and other tools (like MindAttic.Web's `capture.ps1`) work exactly like calling the exe itself.
 
 You should see the page with the toolbar above it. Press Ctrl+Shift+S, then Enter: the status bar says where the screenshot was saved and that it is on the clipboard.
 
@@ -84,7 +84,7 @@ The capture folder defaults to `R:\MindAttic\Capture`, or `Pictures\MindAttic Br
 MindAttic.Browser/
   src/MindAttic.Browser/        the WPF app: MainWindow, CropWindow, SettingsWindow, settings, favorites, naming
   tests/MindAttic.Browser.Tests NUnit: targets, search, favorites, settings round-trip, file names, crop geometry
-  tools/deploy.ps1               rebuild + publish to C:\Apps\MindAttic.Browser\, write its self-redeploying launch.bat
+  deploy.ps1                    publish to C:\Apps\MindAttic.Browser\ when source changed, write its self-redeploying deploy.bat
   docs/images/                  README screenshots
 ```
 
