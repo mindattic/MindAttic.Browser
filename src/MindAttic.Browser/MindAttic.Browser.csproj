@@ -7,6 +7,8 @@
     <AssemblyName>MindAttic.Browser</AssemblyName>
     <RootNamespace>MindAttic.Browser</RootNamespace>
     <Product>MindAttic Browser</Product>
+    <!-- Embedded as the exe's Win32 icon; WPF windows with no Icon of their own inherit it. -->
+    <ApplicationIcon>../../assets/browser.ico</ApplicationIcon>
     <!-- HOUSE-LAW-1: whole-number versions only; bump the major. -->
     <Version>1.0.0</Version>
   </PropertyGroup>
@@ -15,6 +17,8 @@
     <!-- From C:\LocalNuGet (see NuGet.config): MindAttic.Capture repacks these with tools in that repo. -->
     <PackageReference Include="MindAttic.Capture.Wpf" Version="1.0.0" />
     <PackageReference Include="MindAttic.Capture.WebView2" Version="2.0.0" />
+    <!-- From C:\LocalNuGet: the shared dark theme and DropdownMenu, packed from MindAttic.Components. -->
+    <PackageReference Include="MindAttic.Components.Wpf" Version="5.0.0" />
     <PackageReference Include="MindAttic.Vault" Version="5.0.0" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3179.45" />
   </ItemGroup>

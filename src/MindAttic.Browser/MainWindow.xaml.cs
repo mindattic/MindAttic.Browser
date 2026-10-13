@@ -8,6 +8,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using MindAttic.Capture;
 using MindAttic.Capture.WebView2;
+using MindAttic.Components.Wpf.Controls;
 using Microsoft.Web.WebView2.Core;
 using CaptureApi = MindAttic.Capture.Capture;
 
@@ -20,12 +21,24 @@ public partial class MainWindow : Window
     private readonly BrowserTarget _target;
     private readonly DispatcherTimer _stateTimer = new() { Interval = TimeSpan.FromMilliseconds(500) };
     private bool _busyRecording;
+    private readonly DropdownMenu _cogMenu;
 
     internal MainWindow(BrowserTarget target)
     {
         _target = target;
         InitializeComponent();
-        Address.Text = target.Url;
+        _cogMenu = new DropdownMenu(CogButton, BuildCogActions, Settings.PinnedActions.Contains, TogglePinned, PinnedActions);
+        _cogMenu.RefreshPinned();
+        UpdateCaptureState();
+        AddressBar.AddressText = target.Url;
+        AddressBar.ShowHome = true;
+        AddressBar.SearchUrlTemplate = Settings.SearchUrl;
+        AddressBar.HomeRequested += (_, e) =>
+        {
+            e.Handled = true;
+            Navigate(_target.SiteFolder is not null ? _target.Url : Settings.HomePage);
+        };
+        AddressBar.Navigated += (_, _) => Web.Focus();
         Loaded += async (_, _) => await InitializeWebViewAsync();
         _stateTimer.Tick += (_, _) => UpdateCaptureState();
         _stateTimer.Start();
@@ -62,49 +75,32 @@ public partial class MainWindow : Window
             e.Handled = true;
             core.Navigate(e.Uri);
         };
-        core.SourceChanged += (_, _) =>
-        {
-            if (!Address.IsKeyboardFocusWithin) Address.Text = core.Source;
-            UpdateStar();
-        };
-        core.HistoryChanged += (_, _) =>
-        {
-            BackButton.IsEnabled = core.CanGoBack;
-            ForwardButton.IsEnabled = core.CanGoForward;
-        };
+        core.SourceChanged += (_, _) => UpdateStar();
         core.DocumentTitleChanged += (_, _) =>
             Title = string.IsNullOrWhiteSpace(core.DocumentTitle) ? "MindAttic Browser" : $"{core.DocumentTitle} — MindAttic Browser";
         core.NavigationCompleted += (_, e) =>
         {
             if (!e.IsSuccess) Status.Text = $"Could not load {core.Source} ({e.WebErrorStatus}).";
         };
-        BackButton.IsEnabled = ForwardButton.IsEnabled = false;
+        AddressBar.Attach(core);
         core.Navigate(_target.Url);
     }
 
-    private string? CurrentUrl => Web.CoreWebView2?.Source;
+    private string? CurrentUrl => AddressBar.Core?.Source;
 
     private void Navigate(string text)
     {
-        if (Web.CoreWebView2 is null) return;
+        if (AddressBar.Core is null) return;
         var url = BrowserTarget.NormalizeUrl(text, Settings.SearchUrl);
-        Address.Text = url;
-        Web.CoreWebView2.Navigate(url);
+        AddressBar.AddressText = url;
+        AddressBar.Core.Navigate(url);
         Web.Focus();
     }
 
-    private void OnAddressKeyDown(object sender, KeyEventArgs e)
-    {
-        if (e.Key == Key.Enter) Navigate(Address.Text);
-        else if (e.Key == Key.Escape) Address.Text = CurrentUrl ?? Address.Text;
-    }
-
-    private void OnAddressFocused(object sender, KeyboardFocusChangedEventArgs e) => Address.SelectAll();
-    private void OnBack(object sender, RoutedEventArgs e) { if (Web.CoreWebView2?.CanGoBack == true) Web.CoreWebView2.GoBack(); }
-    private void OnForward(object sender, RoutedEventArgs e) { if (Web.CoreWebView2?.CanGoForward == true) Web.CoreWebView2.GoForward(); }
-    private void OnReload(object sender, RoutedEventArgs e) => Web.CoreWebView2?.Reload();
-    private void OnHome(object sender, RoutedEventArgs e) => Navigate(_target.SiteFolder is not null ? _target.Url : Settings.HomePage);
-    private void OnFocusAddress(object sender, RoutedEventArgs e) => Address.Focus();
+    private void OnBack(object sender, RoutedEventArgs e) => AddressBar.GoBack();
+    private void OnForward(object sender, RoutedEventArgs e) => AddressBar.GoForward();
+    private void OnReload(object sender, RoutedEventArgs e) => AddressBar.Reload();
+    private void OnFocusAddress(object sender, RoutedEventArgs e) => AddressBar.FocusAddress();
     private void OnDevTools(object sender, RoutedEventArgs e) => Web.CoreWebView2?.OpenDevToolsWindow();
 
     // ---------------------------------------------------------------- screenshot
@@ -175,7 +171,7 @@ public partial class MainWindow : Window
             return;
         }
         _busyRecording = true;
-        RecordButton.IsEnabled = false;
+        if (_cogMenu.PinnedButton("record") is { } recordButton) recordButton.IsEnabled = false;
         try
         {
             if (!capture.IsRecording)
@@ -198,7 +194,7 @@ public partial class MainWindow : Window
         finally
         {
             _busyRecording = false;
-            RecordButton.IsEnabled = true;
+            if (_cogMenu.PinnedButton("record") is { } pinnedRecord) pinnedRecord.IsEnabled = true;
             UpdateCaptureState();
         }
     }
@@ -217,9 +213,12 @@ public partial class MainWindow : Window
         var options = App.CaptureHandle.Options;
         var capture = CaptureApi.Current;
         var recording = capture.Enabled && capture.IsRecording;
-        RecordButton.Content = recording ? StopIcon : RecordIcon;
-        RecordButton.Foreground = recording ? (Brush)FindResource("Rec") : (Brush)FindResource("Text");
-        RecordButton.ToolTip = recording ? "Stop recording, save and copy (Ctrl+Shift+R)" : "Record (Ctrl+Shift+R)";
+        if (_cogMenu.PinnedButton("record") is { } recordButton)
+        {
+            recordButton.Content = recording ? StopIcon : RecordIcon;
+            recordButton.Foreground = recording ? (Brush)FindResource("McRec") : (Brush)FindResource("McText");
+            recordButton.ToolTip = recording ? "Stop recording, save and copy (Ctrl+Shift+R)" : "Record (Ctrl+Shift+R)";
+        }
         if (options is null || !capture.Enabled)
         {
             CaptureState.Text = "";
@@ -230,7 +229,7 @@ public partial class MainWindow : Window
         if (options.ScreenshotInterval is { } interval) parts.Add($"▣ every {interval.TotalSeconds:0.#}s");
         if (recording) parts.Add("● REC");
         CaptureState.Text = string.Join("   ", parts);
-        CaptureState.Foreground = options.SessionRecording || recording ? (Brush)FindResource("Rec") : (Brush)FindResource("Muted");
+        CaptureState.Foreground = options.SessionRecording || recording ? (Brush)FindResource("McRec") : (Brush)FindResource("McMuted");
     }
 
     // ---------------------------------------------------------------- favorites
@@ -239,7 +238,7 @@ public partial class MainWindow : Window
     {
         var starred = Settings.IsFavorite(CurrentUrl);
         StarButton.Content = starred ? StarFilledIcon : StarIcon;
-        StarButton.Foreground = starred ? (Brush)FindResource("Star") : (Brush)FindResource("Text");
+        StarButton.Foreground = starred ? (Brush)FindResource("McStar") : (Brush)FindResource("McText");
     }
 
     private void OnToggleStar(object sender, RoutedEventArgs e)
@@ -253,22 +252,62 @@ public partial class MainWindow : Window
 
     private void OnStarMenu(object sender, RoutedEventArgs e)
     {
-        var menu = new ContextMenu { PlacementTarget = StarButton, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom };
+        var menu = new ContextMenu
+        {
+            Style = (Style)FindResource("McDropdownMenu"),
+            PlacementTarget = StarButton,
+            Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom,
+        };
         var starred = Settings.IsFavorite(CurrentUrl);
-        var toggle = new MenuItem { Header = starred ? "Remove this page from favorites" : "Add this page to favorites", InputGestureText = "Ctrl+D", IsEnabled = CurrentUrl is not null };
+        var toggle = new MenuItem
+        {
+            Style = (Style)FindResource("McDropdownMenuItem"),
+            Header = starred ? "Remove this page from favorites" : "Add this page to favorites",
+            InputGestureText = "Ctrl+D",
+            IsEnabled = CurrentUrl is not null,
+        };
         toggle.Click += OnToggleStar;
         menu.Items.Add(toggle);
-        menu.Items.Add(new Separator());
+        menu.Items.Add(new Separator { Style = (Style)FindResource("McSeparator") });
         var favorites = Settings.ActiveFavorites();
-        if (favorites.Count == 0) menu.Items.Add(new MenuItem { Header = "No favorites yet", IsEnabled = false });
+        if (favorites.Count == 0)
+            menu.Items.Add(new MenuItem { Style = (Style)FindResource("McDropdownMenuItem"), Header = "No favorites yet", IsEnabled = false });
         foreach (var f in favorites)
         {
-            var item = new MenuItem { Header = f.Title.Length > 70 ? f.Title[..70] + "…" : f.Title, ToolTip = f.Url };
+            var item = new MenuItem
+            {
+                Style = (Style)FindResource("McDropdownMenuItem"),
+                Header = f.Title.Length > 70 ? f.Title[..70] + "…" : f.Title,
+                ToolTip = f.Url,
+            };
             var url = f.Url;
             item.Click += (_, _) => Navigate(url);
             menu.Items.Add(item);
         }
         menu.IsOpen = true;
+    }
+
+    // ---------------------------------------------------------------- cog menu
+
+    private IReadOnlyList<DropdownAction> BuildCogActions()
+    {
+        var recording = CaptureApi.Current.Enabled && CaptureApi.Current.IsRecording;
+        return
+        [
+            new DropdownAction("screenshot", "Screenshot", "", "Screenshot: crop, save and copy (Ctrl+Shift+S)", OnScreenshot),
+            new DropdownAction("record", "Record", recording ? StopIcon : RecordIcon,
+                recording ? "Stop recording, save and copy (Ctrl+Shift+R)" : "Record (Ctrl+Shift+R)", OnRecord),
+            new DropdownAction("openFolder", "Open capture folder", "", "Open this site's capture folder", OnOpenFolder),
+            new DropdownAction("settings", "Settings", "", "Settings (Ctrl+,)", OnSettings),
+        ];
+    }
+
+    private void TogglePinned(string id)
+    {
+        if (!Settings.PinnedActions.Remove(id)) Settings.PinnedActions.Add(id);
+        SaveSettings();
+        // After the dropdown rebuilds the pinned buttons, so a freshly pinned Record shows the live state.
+        Dispatcher.BeginInvoke(UpdateCaptureState);
     }
 
     // ---------------------------------------------------------------- settings

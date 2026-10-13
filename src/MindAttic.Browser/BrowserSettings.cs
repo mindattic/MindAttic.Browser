@@ -30,6 +30,9 @@ public sealed class BrowserSettings
     /// <summary>Starred pages. Unstarring marks one removed rather than deleting it (HOUSE-LAW-2).</summary>
     public List<Favorite> Favorites { get; set; } = [];
 
+    /// <summary>Ids of the actions under the cog that also get their own toolbar button.</summary>
+    public List<string> PinnedActions { get; set; } = ["screenshot", "record"];
+
     /// <summary>Keys written by a newer version survive a save.</summary>
     [JsonExtensionData]
     public Dictionary<string, JsonElement>? Extra { get; set; }
