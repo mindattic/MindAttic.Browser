@@ -33,3 +33,4 @@ _Nothing recorded yet._
 | M.BRWS-T10 | 2026-10-16 | feature | open | Log to MindAttic.Log (3.0.0): every app/CLI entry point writes to the standalone MindAttic.Log.db Vault assigns this app (VaultPaths.LoggingDbPath, MindAttic.Vault 6.0.0) through Serilog's WriteToMindAtticLog, tagged with its Component; log startup, user actions that change data, failures and unhandled exceptions (UI thread, AppDomain, unobserved tasks); tests point the log at a temp file. Pattern: MindAttic.Workflow WorkflowLog (M.FLOW-T92), MindAttic.Orchestrator OrchestratorLog | M.FLOW-T92 |
 | M.BRWS-T11 | 2026-10-16 | docs | closed | Update USER_STORIES.md | — |
 | M.BRWS-T12 | 2026-10-18 | feature | closed | Add Ctrl+H browsing history: recorded per visit, viewable in a History window, cleared in widening buckets | — |
+| M.BRWS-T13 | 2026-10-18 | feature | closed | Add Ask Claude (AutoWebNav): a chat panel that drives the live browser pane via an agentic Operator tool-use loop | — |

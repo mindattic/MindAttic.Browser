@@ -1,0 +1,26 @@
+<Window x:Class="MindAttic.Browser.AutoWebNavWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="clr-namespace:MindAttic.Components.Wpf.Controls;assembly=MindAttic.Components.Wpf"
+        mc:McWindow.DarkTitleBar="True"
+        Title="Ask Claude — MindAttic Browser" Width="420" Height="560" MinWidth="320" MinHeight="300"
+        Background="{StaticResource McChrome}" Foreground="{StaticResource McText}"
+        WindowStartupLocation="Manual" ShowInTaskbar="False">
+    <DockPanel Margin="10">
+        <TextBlock DockPanel.Dock="Top" Margin="0,0,0,8" FontSize="11" Foreground="{StaticResource McMuted}" TextWrapping="Wrap"
+                   Text="Tell Claude what to do on this page — it drives the live browser pane next to this window, not a copy of it." />
+        <Grid DockPanel.Dock="Bottom" Margin="0,8,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="Instruction" Style="{StaticResource McTextBox}" AcceptsReturn="True" TextWrapping="Wrap"
+                     MaxHeight="80" VerticalScrollBarVisibility="Auto" KeyDown="OnInstructionKeyDown" />
+            <Button x:Name="SendButton" Grid.Column="1" Margin="6,0,0,0" Style="{StaticResource McTextButton}" Content="Send" Click="OnSend" />
+            <Button x:Name="StopButton" Grid.Column="2" Margin="6,0,0,0" Style="{StaticResource McTextButton}" Content="Stop" Click="OnStop" IsEnabled="False" />
+        </Grid>
+        <TextBox x:Name="Log" IsReadOnly="True" IsReadOnlyCaretVisible="True" TextWrapping="Wrap"
+                 Background="Transparent" BorderThickness="0" VerticalScrollBarVisibility="Auto" FontFamily="Consolas" FontSize="12" />
+    </DockPanel>
+</Window>

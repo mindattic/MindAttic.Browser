@@ -23,6 +23,7 @@ public partial class MainWindow : Window
     private bool _busyRecording;
     private readonly DropdownMenu _cogMenu;
     private HistoryWindow? _historyWindow;
+    private AutoWebNavWindow? _autoWebNavWindow;
 
     internal MainWindow(BrowserTarget target)
     {
@@ -319,6 +320,7 @@ public partial class MainWindow : Window
                 recording ? "Stop recording, save and copy (Ctrl+Shift+R)" : "Record (Ctrl+Shift+R)", OnRecord),
             new DropdownAction("openFolder", "Open capture folder", "", "Open this site's capture folder", OnOpenFolder),
             new DropdownAction("history", "History", "", "History (Ctrl+H; keep pressing it to clear more)", OnHistory),
+            new DropdownAction("autowebnav", "Ask Claude", "", "Tell Claude what to do on this page", OnAutoWebNav),
             new DropdownAction("settings", "Settings", "", "Settings (Ctrl+,)", OnSettings),
         ];
     }
@@ -335,6 +337,19 @@ public partial class MainWindow : Window
         }
         _historyWindow.Activate();
         _historyWindow.Focus();
+    }
+
+    // ---------------------------------------------------------------- autowebnav
+
+    private void OnAutoWebNav(object sender, RoutedEventArgs e)
+    {
+        if (_autoWebNavWindow is null)
+        {
+            _autoWebNavWindow = new AutoWebNavWindow(() => Web.CoreWebView2, this);
+            _autoWebNavWindow.Closed += (_, _) => _autoWebNavWindow = null;
+            _autoWebNavWindow.Show();
+        }
+        _autoWebNavWindow.Activate();
     }
 
     private void TogglePinned(string id)

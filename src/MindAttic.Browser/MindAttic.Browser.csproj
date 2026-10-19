@@ -21,6 +21,13 @@
     <PackageReference Include="MindAttic.Components.Wpf" Version="5.0.0" />
     <PackageReference Include="MindAttic.Vault" Version="5.0.0" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3179.45" />
+    <!-- AutoWebNav: the browser-automation toolkit (IBrowserSurface, WebView2BrowserSurface) the
+         "Ask Claude" chat agent drives the live page through. MindAttic.Legion: shared Claude API
+         credential store (MindAtticCredentialStore), reused instead of asking the user to set up
+         a key twice. -->
+    <PackageReference Include="AutoWebNav" Version="4.0.0" />
+    <PackageReference Include="AutoWebNav.WebView2" Version="4.0.0" />
+    <PackageReference Include="MindAttic.Legion" Version="26.0.0" />
   </ItemGroup>
 
   <ItemGroup>

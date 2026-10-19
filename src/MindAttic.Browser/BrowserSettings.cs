@@ -37,7 +37,7 @@ public sealed class BrowserSettings
     public List<HistoryEntry> History { get; set; } = [];
 
     /// <summary>Ids of the actions under the cog that also get their own toolbar button.</summary>
-    public List<string> PinnedActions { get; set; } = ["screenshot", "record"];
+    public List<string> PinnedActions { get; set; } = ["screenshot", "record", "autowebnav"];
 
     /// <summary>Keys written by a newer version survive a save.</summary>
     [JsonExtensionData]
