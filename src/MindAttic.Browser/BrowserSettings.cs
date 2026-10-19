@@ -30,6 +30,12 @@ public sealed class BrowserSettings
     /// <summary>Starred pages. Unstarring marks one removed rather than deleting it (HOUSE-LAW-2).</summary>
     public List<Favorite> Favorites { get; set; } = [];
 
+    /// <summary>Pages visited, newest last. Unlike Favorites, Ctrl+H really deletes entries —
+    /// clearing browsing history is the whole point of the feature, not data loss to guard
+    /// against (HOUSE-LAW-2 is about business data, not a mandate to keep a forensic log of
+    /// every page the user asked to forget).</summary>
+    public List<HistoryEntry> History { get; set; } = [];
+
     /// <summary>Ids of the actions under the cog that also get their own toolbar button.</summary>
     public List<string> PinnedActions { get; set; } = ["screenshot", "record"];
 
@@ -75,6 +81,49 @@ public sealed class BrowserSettings
 
     /// <summary>"https://a.com/" and "https://a.com" are the same page.</summary>
     private static string Normalize(string url) => url.Trim().TrimEnd('/');
+
+    // ---------------------------------------------------------------- history
+
+    public void RecordVisit(string url, string? title, DateTimeOffset now) =>
+        History.Add(new HistoryEntry { Url = url, Title = string.IsNullOrWhiteSpace(title) ? url : title!.Trim(), VisitedAt = now });
+
+    /// <summary>History, newest first.</summary>
+    public IReadOnlyList<HistoryEntry> RecentHistory() => History.OrderByDescending(h => h.VisitedAt).ToList();
+
+    /// <summary>Widening windows Ctrl+H tries in order, each paired with the label its status
+    /// line reports. Null means "no lower bound" — all of it.</summary>
+    private static readonly (string Label, TimeSpan? Window)[] FlushWindows =
+    [
+        ("the last 15 minutes", TimeSpan.FromMinutes(15)),
+        ("the last hour", TimeSpan.FromHours(1)),
+        ("the last day", TimeSpan.FromDays(1)),
+        ("the last week", TimeSpan.FromDays(7)),
+        ("all time", null),
+    ];
+
+    /// <summary>
+    /// Clears the narrowest window (15 minutes) that actually has something in it, widening to an
+    /// hour, a day, a week, then everything, until one does. Repeated calls — one per Ctrl+H —
+    /// work outward through the whole history a bucket at a time, ending with nothing left.
+    /// </summary>
+    public (int Count, string Label) FlushNextHistoryBucket(DateTimeOffset now)
+    {
+        foreach (var (label, window) in FlushWindows)
+        {
+            var matches = window is null ? History.ToList() : History.Where(h => now - h.VisitedAt <= window.Value).ToList();
+            if (matches.Count == 0) continue;
+            foreach (var m in matches) History.Remove(m);
+            return (matches.Count, label);
+        }
+        return (0, "all time");
+    }
+}
+
+public sealed class HistoryEntry
+{
+    public string Title { get; set; } = "";
+    public string Url { get; set; } = "";
+    public DateTimeOffset VisitedAt { get; set; }
 }
 
 public sealed class Favorite

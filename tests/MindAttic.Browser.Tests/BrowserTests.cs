@@ -133,6 +133,44 @@ public class FavoritesTests
     }
 }
 
+public class HistoryTests
+{
+    private static readonly DateTimeOffset T0 = new(2026, 10, 11, 12, 0, 0, TimeSpan.Zero);
+
+    [Test]
+    public void Untitled_visits_use_the_url_and_recent_history_is_newest_first()
+    {
+        var s = new BrowserSettings();
+        s.RecordVisit("https://a.example/", "A", T0);
+        s.RecordVisit("https://b.example/", "  ", T0.AddMinutes(1));
+        Assert.That(s.RecentHistory().Select(h => h.Title), Is.EqualTo(new[] { "https://b.example/", "A" }));
+    }
+
+    [Test]
+    public void Ctrl_h_flushes_the_narrowest_non_empty_bucket_and_widens_as_it_empties()
+    {
+        var s = new BrowserSettings();
+        var now = T0.AddDays(10);
+        s.RecordVisit("https://recent.example/", "Recent", now.AddMinutes(-5));     // within 15 min
+        s.RecordVisit("https://hour.example/", "HourOld", now.AddMinutes(-40));     // within 1 hour, not 15 min
+        s.RecordVisit("https://week.example/", "WeekOld", now.AddDays(-3));         // within 1 week, not 1 day
+
+        var first = s.FlushNextHistoryBucket(now);
+        Assert.That(first, Is.EqualTo((1, "the last 15 minutes")));
+        Assert.That(s.History.Select(h => h.Title), Is.EquivalentTo(new[] { "HourOld", "WeekOld" }));
+
+        var second = s.FlushNextHistoryBucket(now);
+        Assert.That(second, Is.EqualTo((1, "the last hour")));
+        Assert.That(s.History.Select(h => h.Title), Is.EqualTo(new[] { "WeekOld" }));
+
+        var third = s.FlushNextHistoryBucket(now);
+        Assert.That(third, Is.EqualTo((1, "the last week")));
+        Assert.That(s.History, Is.Empty);
+
+        Assert.That(s.FlushNextHistoryBucket(now), Is.EqualTo((0, "all time")));
+    }
+}
+
 public class CaptureFilesTests
 {
     private static readonly BrowserTarget Local = new("https://mindattic.com.local/index.htm", @"D:\Web\mindattic.com", "mindattic.com.local", "mindattic.com");

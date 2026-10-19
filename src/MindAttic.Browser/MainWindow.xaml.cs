@@ -22,6 +22,7 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer _stateTimer = new() { Interval = TimeSpan.FromMilliseconds(500) };
     private bool _busyRecording;
     private readonly DropdownMenu _cogMenu;
+    private HistoryWindow? _historyWindow;
 
     internal MainWindow(BrowserTarget target)
     {
@@ -42,6 +43,16 @@ public partial class MainWindow : Window
         Loaded += async (_, _) => await InitializeWebViewAsync();
         _stateTimer.Tick += (_, _) => UpdateCaptureState();
         _stateTimer.Start();
+        // Raw KeyDown rather than a KeyBinding/RoutedCommand pair (same precedent as KdpPublish's
+        // DEBUG F11/F10 devtools toggles): opening/focusing History here, then History's OWN
+        // Ctrl+H handling the repeat once it has keyboard focus, is what makes "press Ctrl+H, keep
+        // pressing it" work without any chord-timing logic anywhere.
+        KeyDown += (_, e) =>
+        {
+            if (e.Key != System.Windows.Input.Key.H || System.Windows.Input.Keyboard.Modifiers != System.Windows.Input.ModifierKeys.Control) return;
+            e.Handled = true;
+            OnHistory(this, new RoutedEventArgs());
+        };
     }
 
     private static BrowserSettings Settings => App.Settings;
@@ -77,10 +88,19 @@ public partial class MainWindow : Window
         };
         core.SourceChanged += (_, _) => UpdateStar();
         core.DocumentTitleChanged += (_, _) =>
+        {
             Title = string.IsNullOrWhiteSpace(core.DocumentTitle) ? "MindAttic Browser" : $"{core.DocumentTitle} — MindAttic Browser";
+            // The title commonly arrives after NavigationCompleted already recorded the visit
+            // with a blank/stale one — patch the newest entry for this URL instead of leaving it wrong.
+            if (!string.IsNullOrWhiteSpace(core.DocumentTitle) &&
+                Settings.History.LastOrDefault(h => h.Url == core.Source) is { } entry)
+                entry.Title = core.DocumentTitle;
+        };
         core.NavigationCompleted += (_, e) =>
         {
-            if (!e.IsSuccess) Status.Text = $"Could not load {core.Source} ({e.WebErrorStatus}).";
+            if (!e.IsSuccess) { Status.Text = $"Could not load {core.Source} ({e.WebErrorStatus})."; return; }
+            Settings.RecordVisit(core.Source, core.DocumentTitle, DateTimeOffset.Now);
+            SaveSettings();
         };
         AddressBar.Attach(core);
         core.Navigate(_target.Url);
@@ -298,8 +318,23 @@ public partial class MainWindow : Window
             new DropdownAction("record", "Record", recording ? StopIcon : RecordIcon,
                 recording ? "Stop recording, save and copy (Ctrl+Shift+R)" : "Record (Ctrl+Shift+R)", OnRecord),
             new DropdownAction("openFolder", "Open capture folder", "", "Open this site's capture folder", OnOpenFolder),
+            new DropdownAction("history", "History", "", "History (Ctrl+H; keep pressing it to clear more)", OnHistory),
             new DropdownAction("settings", "Settings", "", "Settings (Ctrl+,)", OnSettings),
         ];
+    }
+
+    // ---------------------------------------------------------------- history
+
+    private void OnHistory(object sender, RoutedEventArgs e)
+    {
+        if (_historyWindow is null)
+        {
+            _historyWindow = new HistoryWindow(Settings, SaveSettings, Navigate, this);
+            _historyWindow.Closed += (_, _) => _historyWindow = null;
+            _historyWindow.Show();
+        }
+        _historyWindow.Activate();
+        _historyWindow.Focus();
     }
 
     private void TogglePinned(string id)

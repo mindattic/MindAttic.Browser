@@ -1,0 +1,27 @@
+<Window x:Class="MindAttic.Browser.HistoryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="clr-namespace:MindAttic.Components.Wpf.Controls;assembly=MindAttic.Components.Wpf"
+        mc:McWindow.DarkTitleBar="True"
+        Title="History — MindAttic Browser" Width="560" Height="480" MinWidth="360" MinHeight="260"
+        Background="{StaticResource McChrome}" Foreground="{StaticResource McText}" WindowStartupLocation="CenterOwner">
+    <DockPanel Margin="14">
+        <TextBlock DockPanel.Dock="Top" Margin="0,0,0,8" FontSize="11" Foreground="{StaticResource McMuted}" TextWrapping="Wrap"
+                   Text="Double-click a page to open it. Ctrl+H clears the newest bucket of history (15 minutes, then an hour, a day, a week, then everything) — keep pressing it to clear more." />
+        <TextBlock x:Name="FlushStatus" DockPanel.Dock="Top" Margin="0,0,0,8" FontSize="11" Foreground="{StaticResource McAccent}" TextWrapping="Wrap" />
+        <StackPanel DockPanel.Dock="Bottom" Margin="0,10,0,0" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Style="{StaticResource McTextButton}" Content="Clear newest (Ctrl+H)" Click="OnClearNewest" />
+            <Button Style="{StaticResource McTextButton}" Content="Close" IsCancel="True" Margin="8,0,0,0" />
+        </StackPanel>
+        <ListBox x:Name="Entries" Background="Transparent" BorderThickness="0" MouseDoubleClick="OnOpenSelected">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="0,4" ToolTip="{Binding Url}">
+                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding When}" FontSize="11" Foreground="{StaticResource McMuted}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DockPanel>
+</Window>
