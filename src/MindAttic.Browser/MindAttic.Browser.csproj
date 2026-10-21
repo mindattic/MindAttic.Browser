@@ -18,7 +18,7 @@
     <PackageReference Include="MindAttic.Capture.Wpf" Version="1.0.0" />
     <PackageReference Include="MindAttic.Capture.WebView2" Version="2.0.0" />
     <!-- From C:\LocalNuGet: the shared dark theme and DropdownMenu, packed from MindAttic.Components. -->
-    <PackageReference Include="MindAttic.Components.Wpf" Version="5.0.0" />
+    <PackageReference Include="MindAttic.Components.Wpf" Version="19.0.0" />
     <PackageReference Include="MindAttic.Vault" Version="5.0.0" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3179.45" />
     <!-- AutoWebNav: the browser-automation toolkit (IBrowserSurface, WebView2BrowserSurface) the

@@ -14,15 +14,15 @@
         <CommandBinding Command="SelectAll" Executed="OnWhole" />
     </Window.CommandBindings>
     <DockPanel Margin="24">
-        <Border DockPanel.Dock="Bottom" Margin="0,16,0,0" HorizontalAlignment="Center" Padding="10,6" CornerRadius="6" Background="{StaticResource McChrome}">
+        <Border DockPanel.Dock="Bottom" Margin="0,16,0,0" HorizontalAlignment="Center" Padding="10,6" CornerRadius="6" Background="{StaticResource MaChrome}">
             <StackPanel Orientation="Horizontal">
-                <TextBlock x:Name="SizeText" Width="150" VerticalAlignment="Center" Foreground="{StaticResource McMuted}" FontSize="12" />
-                <Button Style="{StaticResource McTextButton}" Content="Whole page" ToolTip="Select everything (Ctrl+A)" Click="OnWhole" />
-                <Button Style="{StaticResource McTextButton}" Content="Cancel" ToolTip="Discard (Esc)" Click="OnCancel" />
-                <Button Style="{StaticResource McTextButton}" Content="Save" ToolTip="Save and copy (Enter)" Click="OnSave" Background="{StaticResource McAccent}" />
+                <TextBlock x:Name="SizeText" Width="150" VerticalAlignment="Center" Foreground="{StaticResource MaMuted}" FontSize="12" />
+                <Button Style="{StaticResource MaTextButton}" Content="Whole page" ToolTip="Select everything (Ctrl+A)" Click="OnWhole" />
+                <Button Style="{StaticResource MaTextButton}" Content="Cancel" ToolTip="Discard (Esc)" Click="OnCancel" />
+                <Button Style="{StaticResource MaTextButton}" Content="Save" ToolTip="Save and copy (Enter)" Click="OnSave" Background="{StaticResource MaAccent}" />
             </StackPanel>
         </Border>
-        <TextBlock DockPanel.Dock="Top" Margin="0,0,0,12" HorizontalAlignment="Center" Foreground="{StaticResource McMuted}" FontSize="12"
+        <TextBlock DockPanel.Dock="Top" Margin="0,0,0,12" HorizontalAlignment="Center" Foreground="{StaticResource MaMuted}" FontSize="12"
                    Text="Drag to select what to keep. Drag the box to move it, its edges to resize. Enter saves, Esc cancels." />
         <Grid x:Name="Host" ClipToBounds="True">
             <Canvas x:Name="Stage" HorizontalAlignment="Center" VerticalAlignment="Center" Background="Transparent" Cursor="Cross"

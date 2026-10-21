@@ -3,9 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         xmlns:mc="clr-namespace:MindAttic.Components.Wpf.Controls;assembly=MindAttic.Components.Wpf"
-        mc:McWindow.DarkTitleBar="True"
+        mc:MaWindow.DarkTitleBar="True"
         Title="MindAttic Browser" Width="1600" Height="900" MinWidth="560" MinHeight="320"
-        Background="{StaticResource McChrome}" WindowStartupLocation="CenterScreen">
+        Background="{StaticResource MaChrome}" WindowStartupLocation="CenterScreen">
     <Window.InputBindings>
         <KeyBinding Key="Left" Modifiers="Alt" Command="BrowseBack" />
         <KeyBinding Key="Right" Modifiers="Alt" Command="BrowseForward" />
@@ -29,7 +29,7 @@
         <CommandBinding Command="ApplicationCommands.Help" Executed="OnSettings" />
     </Window.CommandBindings>
     <DockPanel>
-        <Border DockPanel.Dock="Top" BorderBrush="{StaticResource McChromeBorder}" BorderThickness="0,0,0,1" Padding="6,5">
+        <Border DockPanel.Dock="Top" BorderBrush="{StaticResource MaChromeBorder}" BorderThickness="0,0,0,1" Padding="6,5">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -37,15 +37,15 @@
                 </Grid.ColumnDefinitions>
                 <mc:AddressBar x:Name="AddressBar" Grid.Column="0" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock x:Name="CaptureState" Margin="4,0,8,0" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource McMuted}" />
-                    <Button x:Name="StarButton" Style="{StaticResource McToolButton}" Content="&#xE734;" AutomationProperties.Name="Favorites" ToolTip="Favorites (Ctrl+D stars this page)" Click="OnStarMenu" />
+                    <TextBlock x:Name="CaptureState" Margin="4,0,8,0" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource MaMuted}" />
+                    <Button x:Name="StarButton" Style="{StaticResource MaToolButton}" Content="&#xE734;" AutomationProperties.Name="Favorites" ToolTip="Favorites (Ctrl+D stars this page)" Click="OnStarMenu" />
                     <StackPanel x:Name="PinnedActions" Orientation="Horizontal" />
-                    <Button x:Name="CogButton" Style="{StaticResource McToolButton}" Content="&#xE713;" AutomationProperties.Name="More actions" ToolTip="More actions" />
+                    <Button x:Name="CogButton" Style="{StaticResource MaToolButton}" Content="&#xE713;" AutomationProperties.Name="More actions" ToolTip="More actions" />
                 </StackPanel>
             </Grid>
         </Border>
-        <Border DockPanel.Dock="Bottom" Padding="8,2" BorderBrush="{StaticResource McChromeBorder}" BorderThickness="0,1,0,0">
-            <TextBlock x:Name="Status" FontSize="11" Foreground="{StaticResource McMuted}" TextTrimming="CharacterEllipsis" />
+        <Border DockPanel.Dock="Bottom" Padding="8,2" BorderBrush="{StaticResource MaChromeBorder}" BorderThickness="0,1,0,0">
+            <TextBlock x:Name="Status" FontSize="11" Foreground="{StaticResource MaMuted}" TextTrimming="CharacterEllipsis" />
         </Border>
         <wv2:WebView2 x:Name="Web" DefaultBackgroundColor="White" />
     </DockPanel>

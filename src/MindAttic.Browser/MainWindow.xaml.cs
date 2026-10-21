@@ -237,7 +237,7 @@ public partial class MainWindow : Window
         if (_cogMenu.PinnedButton("record") is { } recordButton)
         {
             recordButton.Content = recording ? StopIcon : RecordIcon;
-            recordButton.Foreground = recording ? (Brush)FindResource("McRec") : (Brush)FindResource("McText");
+            recordButton.Foreground = recording ? (Brush)FindResource("MaRec") : (Brush)FindResource("MaText");
             recordButton.ToolTip = recording ? "Stop recording, save and copy (Ctrl+Shift+R)" : "Record (Ctrl+Shift+R)";
         }
         if (options is null || !capture.Enabled)
@@ -250,7 +250,7 @@ public partial class MainWindow : Window
         if (options.ScreenshotInterval is { } interval) parts.Add($"▣ every {interval.TotalSeconds:0.#}s");
         if (recording) parts.Add("● REC");
         CaptureState.Text = string.Join("   ", parts);
-        CaptureState.Foreground = options.SessionRecording || recording ? (Brush)FindResource("McRec") : (Brush)FindResource("McMuted");
+        CaptureState.Foreground = options.SessionRecording || recording ? (Brush)FindResource("MaRec") : (Brush)FindResource("MaMuted");
     }
 
     // ---------------------------------------------------------------- favorites
@@ -259,7 +259,7 @@ public partial class MainWindow : Window
     {
         var starred = Settings.IsFavorite(CurrentUrl);
         StarButton.Content = starred ? StarFilledIcon : StarIcon;
-        StarButton.Foreground = starred ? (Brush)FindResource("McStar") : (Brush)FindResource("McText");
+        StarButton.Foreground = starred ? (Brush)FindResource("MaStar") : (Brush)FindResource("MaText");
     }
 
     private void OnToggleStar(object sender, RoutedEventArgs e)
@@ -275,29 +275,29 @@ public partial class MainWindow : Window
     {
         var menu = new ContextMenu
         {
-            Style = (Style)FindResource("McDropdownMenu"),
+            Style = (Style)FindResource("MaDropdownMenu"),
             PlacementTarget = StarButton,
             Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom,
         };
         var starred = Settings.IsFavorite(CurrentUrl);
         var toggle = new MenuItem
         {
-            Style = (Style)FindResource("McDropdownMenuItem"),
+            Style = (Style)FindResource("MaDropdownMenuItem"),
             Header = starred ? "Remove this page from favorites" : "Add this page to favorites",
             InputGestureText = "Ctrl+D",
             IsEnabled = CurrentUrl is not null,
         };
         toggle.Click += OnToggleStar;
         menu.Items.Add(toggle);
-        menu.Items.Add(new Separator { Style = (Style)FindResource("McSeparator") });
+        menu.Items.Add(new Separator { Style = (Style)FindResource("MaSeparator") });
         var favorites = Settings.ActiveFavorites();
         if (favorites.Count == 0)
-            menu.Items.Add(new MenuItem { Style = (Style)FindResource("McDropdownMenuItem"), Header = "No favorites yet", IsEnabled = false });
+            menu.Items.Add(new MenuItem { Style = (Style)FindResource("MaDropdownMenuItem"), Header = "No favorites yet", IsEnabled = false });
         foreach (var f in favorites)
         {
             var item = new MenuItem
             {
-                Style = (Style)FindResource("McDropdownMenuItem"),
+                Style = (Style)FindResource("MaDropdownMenuItem"),
                 Header = f.Title.Length > 70 ? f.Title[..70] + "…" : f.Title,
                 ToolTip = f.Url,
             };
