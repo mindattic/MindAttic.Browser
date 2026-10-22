@@ -34,6 +34,7 @@ _Nothing recorded yet._
 | M.BRWS-T11 | 2026-10-16 | docs | closed | Update USER_STORIES.md | — |
 | M.BRWS-T12 | 2026-10-18 | feature | closed | Add Ctrl+H browsing history: recorded per visit, viewable in a History window, cleared in widening buckets | — |
 | M.BRWS-T13 | 2026-10-18 | feature | closed | Add Ask Claude (AutoWebNav): a chat panel that drives the live browser pane via an agentic Operator tool-use loop | — |
-| M.BRWS-T14 | 2026-10-19 | chore | open | Convert tracked source files to LF line endings via .gitattributes, per HOUSE-LAW-13 (low priority) | — |
+| M.BRWS-T14 | 2026-10-19 | chore | wont-do | Convert tracked source files to LF line endings via .gitattributes, per HOUSE-LAW-13 (low priority) | — |
 | M.BRWS-T15 | 2026-10-20 | docs | open | Publish MindAttic.Browser docs to GitHub Pages via the shared Toolkit DocFX pipeline: run adopt-docs-site.ps1 (README.md as home page, docs/*.md as articles, API reference only where the code builds in CI), enable Pages with build_type=workflow, set the repo homepage URL, retire tools/build-readme.ps1 and README.htm, confirm the docs Actions run is green and https://mindattic.github.io/MindAttic.Browser/ returns 200. Depends on MAT-T8. | — |
 | M.BRWS-T16 | 2026-10-20 | chore | closed | Move to MindAttic.Components.Wpf 19.0.0 (Mc->Ma rename): bump the PackageReference and rename every Mc-prefixed style/class reference to Ma across AutoWebNavWindow.xaml, CropWindow.xaml, HistoryWindow.xaml, MainWindow.xaml(.cs) and SettingsWindow.xaml (~53 occurrences) | 8dbe96e |
+| M.BRWS-T17 | 2026-10-22 | docs | closed | Update USER_STORIES.md | — |
