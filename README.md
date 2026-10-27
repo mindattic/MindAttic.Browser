@@ -41,10 +41,10 @@ cd ..\MindAttic.Capture
 dotnet pack -c Release -o C:\LocalNuGet
 .\tools\install.ps1                      # optional: the capture agent, so recordings export after the browser closes
 cd ..\MindAttic.Browser
-.\deploy.ps1 -Launch https://example.com
+.\run.ps1 -Launch https://example.com
 ```
 
-`deploy.ps1` republishes to `C:\Apps\MindAttic.Browser\` only when something changed: a source file newer than the deployed exe, a newer `MindAttic.Capture*.nupkg` in `C:\LocalNuGet`, or a missing exe or `deploy.bat`. Otherwise it is a fast no-op. `deploy.ps1 -Force` always does a clean bin/obj rebuild. Before publishing, it asks a deployed instance that's still open (it might be mid-recording) to close and waits up to 30s; if it's still there, it keeps that build instead of killing it. The desktop shortcut points at `C:\Apps\MindAttic.Browser\deploy.bat`, which runs `deploy.ps1` before every launch and forwards its arguments, so `deploy.bat <url> -capture video` and other tools (like MindAttic.Web's `capture.ps1`) work exactly like calling the exe itself.
+`run.ps1` republishes to `C:\Apps\MindAttic.Browser\` only when something changed: a source file newer than the deployed exe, a newer `MindAttic.Capture*.nupkg` in `C:\LocalNuGet`, or a missing exe. Otherwise it is a fast no-op. `run.ps1 -Force` always does a clean bin/obj rebuild. Before publishing, it asks a deployed instance that's still open (it might be mid-recording) to close and waits up to 30s; if it's still there, it keeps that build instead of killing it. Every run also writes `C:\Apps\MindAttic.Browser\run.bat`, the desktop shortcut target (`run.ps1 -LauncherOnly` writes just that). A double-click opens a menu: **1) Deploy & Run** (runs `run.ps1 -Force`, then starts the exe) or **2) Run** (starts the deployed exe as is). The launcher forwards its arguments to the exe, so `run.bat <url> -capture video` works exactly like calling the exe itself.
 
 You should see the page with the toolbar above it. Press Ctrl+Shift+S, then Enter: the status bar says where the screenshot was saved and that it is on the clipboard.
 
@@ -84,7 +84,7 @@ The capture folder defaults to `R:\MindAttic\Capture`, or `Pictures\MindAttic Br
 MindAttic.Browser/
   src/MindAttic.Browser/        the WPF app: MainWindow, CropWindow, SettingsWindow, settings, favorites, naming
   tests/MindAttic.Browser.Tests NUnit: targets, search, favorites, settings round-trip, file names, crop geometry
-  deploy.ps1                    publish to C:\Apps\MindAttic.Browser\ when source changed, write its self-redeploying deploy.bat
+  run.ps1                       publish to C:\Apps\MindAttic.Browser\ when source changed, write its run.bat launcher
   docs/images/                  README screenshots
 ```
 
