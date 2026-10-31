@@ -124,6 +124,19 @@ public class LampSettingsTests
     }
 
     [Test]
+    public void Setting_PinnedActions_VaultEditReachesThePredicateTheOpenWindowBoundAtStartup()
+    {
+        // MainWindow builds its cog menu once, with Settings.PinnedActions.Contains bound to the list it had then
+        // (M.BRWS-T24): a Vault edit has to land in that same list, or the toolbar keeps the old buttons.
+        WriteToday("""{ "pinnedActions": ["screenshot", "record", "autowebnav"] }""");
+        var running = Store().Load();
+        Func<string, bool> isPinned = running.PinnedActions.Contains;
+        EditInVault(running, s => s.PinnedActions = ["screenshot", "record"]);
+        Assert.That(isPinned("autowebnav"), Is.False, "unpinned in Vault, so its toolbar button goes away");
+        Assert.That(isPinned("record"), Is.True);
+    }
+
+    [Test]
     public void EverySettingHasItsOwnTest()
     {
         var tested = GetType().GetMethods().Select(m => m.Name).Where(n => n.StartsWith("Setting_")).ToList();

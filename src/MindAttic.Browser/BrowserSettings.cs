@@ -185,7 +185,9 @@ public sealed class BrowserSettingsStore(JsonSettingsStore<BrowserSettings> stor
         target.CaptureFolder = saved.CaptureFolder;
         target.CopyToClipboard = saved.CopyToClipboard;
         target.CropScreenshots = saved.CropScreenshots;
-        target.PinnedActions = saved.PinnedActions;
+        // In place: the open window's cog menu holds a delegate bound to this list instance (M.BRWS-T24).
+        target.PinnedActions.Clear();
+        target.PinnedActions.AddRange(saved.PinnedActions);
         return changed;
     }
 
