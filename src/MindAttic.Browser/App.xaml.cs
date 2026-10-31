@@ -20,6 +20,12 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        if (e.Args.Contains(MindAttic.Vault.Settings.Manifest.SettingsManifestCommand.Switch, StringComparer.OrdinalIgnoreCase))
+        {
+            SettingsStore.Load();
+            Shutdown();
+            return;
+        }
         Settings = SettingsStore.Load();
         var target = BrowserTarget.Parse(e.Args, home: Settings.HomePage, searchUrl: Settings.SearchUrl);
         var folder = Settings.ResolvedCaptureFolder();

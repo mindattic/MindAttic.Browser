@@ -54,6 +54,41 @@ public partial class MainWindow : Window
             e.Handled = true;
             OnHistory(this, new RoutedEventArgs());
         };
+        WatchSettings();
+    }
+
+    private FileSystemWatcher? _settingsWatcher;
+    private readonly DispatcherTimer _settingsDebounce = new() { Interval = TimeSpan.FromMilliseconds(300) };
+
+    /// <summary>Edits saved in MindAttic.Vault.Desktop apply to this window without a restart.</summary>
+    private void WatchSettings()
+    {
+        _settingsDebounce.Tick += (_, _) =>
+        {
+            _settingsDebounce.Stop();
+            if (!App.SettingsStore.RefreshSettingsInto(Settings)) return;
+            AddressBar.SearchUrlTemplate = Settings.SearchUrl;
+            _cogMenu.RefreshPinned();
+            Status.Text = "Settings updated from MindAttic Vault.";
+        };
+        try
+        {
+            Directory.CreateDirectory(App.SettingsStore.Directory);
+            _settingsWatcher = new FileSystemWatcher(App.SettingsStore.Directory, Path.GetFileName(App.SettingsStore.FilePath))
+            {
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime,
+            };
+            FileSystemEventHandler changed = (_, _) => Dispatcher.BeginInvoke(() => { _settingsDebounce.Stop(); _settingsDebounce.Start(); });
+            _settingsWatcher.Changed += changed;
+            _settingsWatcher.Created += changed;
+            _settingsWatcher.Renamed += (s, e) => changed(s, e);
+            _settingsWatcher.EnableRaisingEvents = true;
+            Closed += (_, _) => _settingsWatcher?.Dispose();
+        }
+        catch (Exception ex) when (ex is IOException or ArgumentException or UnauthorizedAccessException)
+        {
+            _settingsWatcher = null;
+        }
     }
 
     private static BrowserSettings Settings => App.Settings;
@@ -362,15 +397,11 @@ public partial class MainWindow : Window
 
     // ---------------------------------------------------------------- settings
 
-    private void OnSettings(object sender, RoutedEventArgs e)
-    {
-        var folderBefore = Settings.CaptureFolder;
-        if (new SettingsWindow(Settings, App.SettingsStore.FilePath, this).ShowDialog() != true) return;
-        SaveSettings();
-        Status.Text = Settings.CaptureFolder != folderBefore
-            ? "Settings saved. Screenshots use the new folder now; recordings use it from the next launch."
-            : "Settings saved.";
-    }
+    /// <summary>The cog's Settings opens this browser's tab in MindAttic.Vault.Desktop.</summary>
+    private void OnSettings(object sender, RoutedEventArgs e) =>
+        Status.Text = MindAttic.Vault.Launch.VaultSettings.Open(BrowserSettingsStore.AppBucket)
+            ? "Opened MindAttic Vault. Saved changes apply here automatically."
+            : $"MindAttic Vault isn't installed; edit {App.SettingsStore.FilePath} instead.";
 
     private void SaveSettings()
     {
