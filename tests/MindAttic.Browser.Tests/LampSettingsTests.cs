@@ -173,4 +173,14 @@ public class LampSettingsTests
         Assert.That(typeof(BrowserSettings).Assembly.GetType("MindAttic.Browser.SettingsWindow"), Is.Null);
         Assert.That(VaultSettings.Link(BrowserSettingsStore.AppBucket), Is.EqualTo("mindattic-vault://open?app=MindAttic.Browser"));
     }
+
+    [Test]
+    public void RunPs1_WritesTheSettingsManifestAfterPublishing()
+    {
+        // LAMP step 7 (M.BRWS-T25): a redeploy refreshes the manifest MindAttic Vault renders, not only the app's next start.
+        var root = TestContext.CurrentContext.TestDirectory;
+        while (!System.IO.Directory.Exists(System.IO.Path.Combine(root, ".git")) && !System.IO.File.Exists(System.IO.Path.Combine(root, ".git")))
+            root = System.IO.Path.GetDirectoryName(root) ?? throw new InvalidOperationException("no repo root above the tests");
+        Assert.That(System.IO.File.ReadAllText(System.IO.Path.Combine(root, "run.ps1")), Does.Contain("-ArgumentList '--write-settings-manifest'"));
+    }
 }

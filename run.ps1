@@ -236,6 +236,9 @@ if (-not $Force -and -not (Test-NeedsPublish)) {
             # An incremental publish can copy an unchanged bundle with its old timestamp; stamp it
             # so the next run's change check compares against this deploy.
             (Get-Item $exe).LastWriteTime = Get-Date
+            # LAMP step 7 (M.BRWS-T25): refresh settings.manifest.json so MindAttic Vault shows this build's settings.
+            $manifest = Start-Process -FilePath $exe -ArgumentList '--write-settings-manifest' -WorkingDirectory $out -Wait -PassThru
+            if ($manifest.ExitCode -ne 0) { Write-Host "    (--write-settings-manifest exited $($manifest.ExitCode); the browser writes it on its next start)" -ForegroundColor DarkYellow }
             Write-Host ''
             Write-Host '  Published successfully.' -ForegroundColor Green
             Write-Host "    Exe    : $exe ($([math]::Round(((Get-Item $exe).Length / 1MB), 1)) MB)" -ForegroundColor Gray
