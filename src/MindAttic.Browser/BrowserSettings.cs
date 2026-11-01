@@ -11,7 +11,7 @@ namespace MindAttic.Browser;
 /// edited in MindAttic.Vault.Desktop (the cog's Settings). Favorites and history share the file but are browsing data,
 /// not settings, so they stay out of the manifest.
 /// </summary>
-[SettingsApp(BrowserSettingsStore.AppBucket, "MindAttic Browser", Icon = "globe",
+[SettingsApp(BrowserSettingsStore.AppBucket, "MindAttic.Browser", Icon = "globe",
     Description = "WebView2 browser with page capture and AutoWebNav.")]
 public sealed class BrowserSettings
 {
