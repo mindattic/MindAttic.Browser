@@ -176,6 +176,9 @@ public sealed class BrowserSettingsStore(JsonSettingsStore<BrowserSettings> stor
     /// </summary>
     public bool RefreshSettingsInto(BrowserSettings target)
     {
+        // store.Load() answers defaults for a file it can't read or parse (mid-edit, a typo in a hand edit);
+        // copying those in would reset every setting, and the next history save would write the reset to disk.
+        if (!IsReadableJson(store.FilePath)) return false;
         var saved = store.Load();
         var changed = target.HomePage != saved.HomePage || target.SearchUrl != saved.SearchUrl || target.CaptureFolder != saved.CaptureFolder
                       || target.CopyToClipboard != saved.CopyToClipboard || target.CropScreenshots != saved.CropScreenshots
@@ -189,6 +192,19 @@ public sealed class BrowserSettingsStore(JsonSettingsStore<BrowserSettings> stor
         target.PinnedActions.Clear();
         target.PinnedActions.AddRange(saved.PinnedActions);
         return changed;
+    }
+
+    private static bool IsReadableJson(string path)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(File.ReadAllText(path));
+            return doc.RootElement.ValueKind == JsonValueKind.Object;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException)
+        {
+            return false;
+        }
     }
 
     public void Save(BrowserSettings settings) => store.Save(settings);

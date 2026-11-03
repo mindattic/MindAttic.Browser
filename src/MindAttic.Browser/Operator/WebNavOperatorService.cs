@@ -63,6 +63,15 @@ public class WebNavOperatorService
     public async IAsyncEnumerable<OperatorEvent> RunAsync(
         string instruction, WebNavOperatorContext ctx, [EnumeratorCancellation] CancellationToken ct = default)
     {
+        // A run stopped mid-tool leaves an assistant turn whose tool_use blocks never got a
+        // tool_result; the API rejects every later request until each one is answered.
+        if (history.Count > 0 && history[^1] is ToolLoopMessage.AssistantTurn dangling)
+        {
+            var interrupted = dangling.Parts.OfType<AssistantPart.ToolCall>()
+                .Select(c => new ToolResultPart(c.Id, JsonSerializer.Serialize(new { error = "Interrupted before this tool finished; its effect is unknown." }), true))
+                .ToList();
+            if (interrupted.Count > 0) history.Add(new ToolLoopMessage.ToolResults(interrupted));
+        }
         history.Add(new ToolLoopMessage.UserText(instruction));
         var toolDefs = tools.BuildToolDefinitions();
 
@@ -76,7 +85,8 @@ public class WebNavOperatorService
             {
                 turn = await llm.CreateTurnAsync(SystemPrompt, history, toolDefs, MaxTokens, ct);
             }
-            catch (Exception ex) when (ex is not OperationCanceledException)
+            // An HttpClient timeout is a TaskCanceledException too; only the person's Stop is a cancel.
+            catch (Exception ex) when (ex is not OperationCanceledException || !ct.IsCancellationRequested)
             {
                 callError = ex.Message;
             }
@@ -110,7 +120,7 @@ public class WebNavOperatorService
                         using var argsDoc = JsonDocument.Parse(call.ArgumentsJson);
                         resultJson = await tool.InvokeAsync(argsDoc.RootElement, ctx, ct);
                     }
-                    catch (Exception ex) when (ex is not OperationCanceledException)
+                    catch (Exception ex) when (ex is not OperationCanceledException || !ct.IsCancellationRequested)
                     {
                         resultJson = JsonSerializer.Serialize(new { error = ex.Message });
                         isError = true;

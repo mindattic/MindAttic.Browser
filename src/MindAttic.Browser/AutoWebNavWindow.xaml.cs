@@ -32,6 +32,8 @@ public partial class AutoWebNavWindow : Window
         Owner = owner;
         Left = owner.Left + owner.Width - Width - 20;
         Top = owner.Top + 80;
+        // Closing the panel stops Claude driving the page; otherwise the run carries on unseen.
+        Closed += (_, _) => runCts?.Cancel();
     }
 
     private WebNavOperatorService Service => service ??= new WebNavOperatorService(
