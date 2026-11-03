@@ -211,11 +211,12 @@ public sealed class BrowserSettingsStore(JsonSettingsStore<BrowserSettings> stor
     /// </summary>
     public bool RefreshSettingsInto(BrowserSettings target)
     {
-        // store.Load() answers defaults for a file it can't read or parse (mid-edit, a typo in a hand edit);
-        // copying those in would reset every setting, and the next history save would write the reset to disk.
-        if (!IsReadableJson(store.FilePath)) return false;
+        // A file that can't be read or parsed (mid-edit, a typo in a hand edit) fails TryLoad explicitly
+        // (MindAttic.Vault 8.0.0, M.BRWS-T31): keep the current settings rather than copying in defaults, which
+        // would reset every setting and the next history save would write the reset to disk. A missing or empty
+        // file (TryLoad's success-with-defaults cases, e.g. a hand edit mid-truncate) is skipped the same way.
         var stamp = Stamp();
-        var saved = store.Load();
+        if (stamp is null || stamp.Value.Item2 == 0 || !store.TryLoad(out var saved)) return false;
         _knownStamp = stamp;
         var changed = target.HomePage != saved.HomePage || target.SearchUrl != saved.SearchUrl || target.CaptureFolder != saved.CaptureFolder
                       || target.CopyToClipboard != saved.CopyToClipboard || target.CropScreenshots != saved.CropScreenshots
@@ -229,19 +230,6 @@ public sealed class BrowserSettingsStore(JsonSettingsStore<BrowserSettings> stor
         target.PinnedActions.Clear();
         target.PinnedActions.AddRange(saved.PinnedActions);
         return changed;
-    }
-
-    private static bool IsReadableJson(string path)
-    {
-        try
-        {
-            using var doc = JsonDocument.Parse(File.ReadAllText(path));
-            return doc.RootElement.ValueKind == JsonValueKind.Object;
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException)
-        {
-            return false;
-        }
     }
 
     /// <summary>Saves <paramref name="settings"/>, first absorbing any settings edit written to the file since this
