@@ -165,7 +165,42 @@ public sealed class BrowserSettingsStore(JsonSettingsStore<BrowserSettings> stor
     public string FilePath => store.FilePath;
 
     /// <summary>First start seeds the defaults and writes the manifest MindAttic.Vault.Desktop renders.</summary>
-    public BrowserSettings Load() => store.LoadOrSeed();
+    public BrowserSettings Load()
+    {
+        var settings = store.LoadOrSeed();
+        _knownStamp = Stamp();
+        return settings;
+    }
+
+    // The file's write time and size as of this window's last load, refresh or save. A different stamp at save
+    // time means MindAttic.Vault.Desktop (or a hand edit) wrote the file since, and the watcher's debounce hasn't
+    // absorbed it yet.
+    private (DateTime, long)? _knownStamp;
+
+    private (DateTime, long)? Stamp()
+    {
+        try
+        {
+            var info = new FileInfo(store.FilePath);
+            return info.Exists ? (info.LastWriteTimeUtc, info.Length) : null;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Pulls in a settings edit written since this window last read or wrote the file, so a save made before the
+    /// watcher's debounce fires can't overwrite it. Call before changing a setting in memory too, so the change
+    /// lands on top of the external edit rather than being lost to it. Returns true when anything changed.
+    /// </summary>
+    public bool SyncFromDisk(BrowserSettings target)
+    {
+        var stamp = Stamp();
+        if (stamp is null || stamp == _knownStamp) return false;
+        return RefreshSettingsInto(target);
+    }
 
     public string Directory => store.Directory;
 
@@ -179,7 +214,9 @@ public sealed class BrowserSettingsStore(JsonSettingsStore<BrowserSettings> stor
         // store.Load() answers defaults for a file it can't read or parse (mid-edit, a typo in a hand edit);
         // copying those in would reset every setting, and the next history save would write the reset to disk.
         if (!IsReadableJson(store.FilePath)) return false;
+        var stamp = Stamp();
         var saved = store.Load();
+        _knownStamp = stamp;
         var changed = target.HomePage != saved.HomePage || target.SearchUrl != saved.SearchUrl || target.CaptureFolder != saved.CaptureFolder
                       || target.CopyToClipboard != saved.CopyToClipboard || target.CropScreenshots != saved.CropScreenshots
                       || !target.PinnedActions.SequenceEqual(saved.PinnedActions);
@@ -207,5 +244,12 @@ public sealed class BrowserSettingsStore(JsonSettingsStore<BrowserSettings> stor
         }
     }
 
-    public void Save(BrowserSettings settings) => store.Save(settings);
+    /// <summary>Saves <paramref name="settings"/>, first absorbing any settings edit written to the file since this
+    /// window last read or wrote it (M.BRWS-T30), so a history/favorites save never reverts a Vault edit.</summary>
+    public void Save(BrowserSettings settings)
+    {
+        SyncFromDisk(settings);
+        store.Save(settings);
+        _knownStamp = Stamp();
+    }
 }

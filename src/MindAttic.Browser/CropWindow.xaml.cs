@@ -52,7 +52,33 @@ public partial class CropWindow : Window
 
     private PixelBox Whole => new(0, 0, _image.PixelWidth, _image.PixelHeight);
 
-    private static Rect MaximizedBounds(Window w) => SystemParameters.WorkArea;
+    /// <summary>The work area of the monitor <paramref name="w"/> is maximized on (not always the primary one), in
+    /// the window's device-independent units. Falls back to the primary work area if the monitor can't be read.</summary>
+    private static Rect MaximizedBounds(Window w)
+    {
+        var hwnd = new System.Windows.Interop.WindowInteropHelper(w).Handle;
+        var monitor = hwnd == IntPtr.Zero ? IntPtr.Zero : MonitorFromWindow(hwnd, MonitorDefaultToNearest);
+        var info = new MonitorInfo { Size = System.Runtime.InteropServices.Marshal.SizeOf<MonitorInfo>() };
+        if (monitor == IntPtr.Zero || !GetMonitorInfo(monitor, ref info)) return SystemParameters.WorkArea;
+        var fromDevice = PresentationSource.FromVisual(w)?.CompositionTarget?.TransformFromDevice ?? Matrix.Identity;
+        var topLeft = fromDevice.Transform(new Point(info.Work.Left, info.Work.Top));
+        var bottomRight = fromDevice.Transform(new Point(info.Work.Right, info.Work.Bottom));
+        return new Rect(topLeft, bottomRight);
+    }
+
+    private const uint MonitorDefaultToNearest = 2;
+
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+    private struct NativeRect { public int Left, Top, Right, Bottom; }
+
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+    private struct MonitorInfo { public int Size; public NativeRect Monitor; public NativeRect Work; public uint Flags; }
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint flags);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern bool GetMonitorInfo(IntPtr monitor, ref MonitorInfo info);
 
     private void Layout()
     {

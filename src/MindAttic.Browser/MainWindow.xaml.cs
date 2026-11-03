@@ -389,6 +389,8 @@ public partial class MainWindow : Window
 
     private void TogglePinned(string id)
     {
+        // Pull in a not-yet-absorbed Vault edit first so the toggle lands on top of it rather than reverting it.
+        SyncSettingsFromDisk();
         if (!Settings.PinnedActions.Remove(id)) Settings.PinnedActions.Add(id);
         SaveSettings();
         // After the dropdown rebuilds the pinned buttons, so a freshly pinned Record shows the live state.
@@ -403,10 +405,19 @@ public partial class MainWindow : Window
             ? "Opened MindAttic Vault. Saved changes apply here automatically."
             : $"MindAttic Vault isn't installed; edit {App.SettingsStore.FilePath} instead.";
 
+    private void SyncSettingsFromDisk()
+    {
+        if (!App.SettingsStore.SyncFromDisk(Settings)) return;
+        AddressBar.SearchUrlTemplate = Settings.SearchUrl;
+        _cogMenu.RefreshPinned();
+    }
+
     private void SaveSettings()
     {
         try
         {
+            // A Vault edit written within the watcher's debounce would otherwise be overwritten by this save.
+            SyncSettingsFromDisk();
             App.SettingsStore.Save(Settings);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
