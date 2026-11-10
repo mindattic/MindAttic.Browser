@@ -48,3 +48,8 @@ _Nothing recorded yet._
 | M.BRWS-T25 | 2026-10-31 | fix | closed | run.ps1 doesn't run the published exe with --write-settings-manifest (LAMP playbook step 7), so after a redeploy MindAttic Vault keeps showing the old settings manifest until the app next runs (found verifying M.VALT-T73) | e3a54cb LampSettingsTests.RunPs1_WritesTheSettingsManifestAfterPublishing |
 | M.BRWS-T26 | 2026-10-31 | chore | closed | Vault tab named after the repo: SettingsApp DisplayName 'MindAttic Browser' -> 'MindAttic.Browser' | M.VALT-T75 bd3b631 |
 | M.BRWS-T27 | 2026-10-31 | docs | closed | Update USER_STORIES.md | — |
+| M.BRWS-T28 | 2026-11-02 | docs | open | Adopt MindAttic.Agency docs-site pipeline, publish README to GitHub Pages (HOUSE-LAW-14) | — |
+| M.BRWS-T29 | 2026-11-02 | fix | closed | Bughunt sweep, two passes: find and fix real bugs across tracked source (user request 2026-11-02) | — |
+| M.BRWS-T30 | 2026-11-02 | fix | closed | Fix the open items the 2026-11-02 bughunt left for decision (per-monitor crop lightbox, serialize browser saves vs Vault edits) | — |
+| M.BRWS-T31 | 2026-11-03 | fix | closed | Adopt MindAttic.Vault 8.0.0 TryLoad/LoadStrict in the settings refresh/save path (replaces the M.BRWS-T30 last-good-state fallback) so a failed read is detected explicitly | — |
+| M.BRWS-T32 | 2026-11-10 | chore | closed | Crash recovery: commit the command-catalog sync (.agent/commands/*.md) and regenerated docs/USER_STORIES.md left uncommitted by the session crash | — |
