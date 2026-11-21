@@ -119,6 +119,10 @@ public partial class MainWindow : Window
         await CaptureWebView2.AttachAsync(core, bridge);
         core.NewWindowRequested += (_, e) =>
         {
+            // A sized popup (OAuth sign-in) needs its own window: in this tab it loses window.opener and its
+            // handler page hangs. Only plain new-tab links stay in the tab.
+            if (e.WindowFeatures.HasSize || e.WindowFeatures.HasPosition)
+                return;
             e.Handled = true;
             core.Navigate(e.Uri);
         };
