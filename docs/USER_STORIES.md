@@ -55,4 +55,5 @@ _Nothing recorded yet._
 | M.BRWS-T32 | 2026-11-10 | chore | closed | Crash recovery: commit the command-catalog sync (.agent/commands/*.md) and regenerated docs/USER_STORIES.md left uncommitted by the session crash | — |
 | M.BRWS-T33 | 2026-11-10 | chore | closed | Adopt the shared docs-site pipeline: turn on GitHub Pages | — |
 | M.BRWS-T34 | 2026-11-17 | docs | closed | Update USER_STORIES.md | — |
-| M.BRWS-T35 | 2026-11-21 | fix | open | NewWindowRequested navigates every popup in the same tab, so OAuth popups (Google/Discord sign-in on midjourney.com) lose window.opener and their handler page hangs blank; let real popups open as popup windows | — |
+| M.BRWS-T35 | 2026-11-21 | fix | closed | NewWindowRequested navigates every popup in the same tab, so OAuth popups (Google/Discord sign-in on midjourney.com) lose window.opener and their handler page hangs blank; let real popups open as popup windows | — |
+| M.BRWS-T36 | 2026-11-22 | docs | closed | 2026-11-22 morning | — |
