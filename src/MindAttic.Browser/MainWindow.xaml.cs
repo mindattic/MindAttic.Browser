@@ -6,11 +6,11 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using MindAttic.Capture;
-using MindAttic.Capture.WebView2;
+using MindAttic.Media.Capture;
+using MindAttic.Media.Capture.WebView2;
 using MindAttic.Components.Wpf.Controls;
 using Microsoft.Web.WebView2.Core;
-using CaptureApi = MindAttic.Capture.Capture;
+using CaptureApi = MindAttic.Media.Capture.Capture;
 
 namespace MindAttic.Browser;
 

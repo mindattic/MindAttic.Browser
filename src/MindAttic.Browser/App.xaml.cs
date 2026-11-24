@@ -1,5 +1,5 @@
 using System.Windows;
-using MindAttic.Capture.Wpf;
+using MindAttic.Media.Capture.Wpf;
 
 namespace MindAttic.Browser;
 

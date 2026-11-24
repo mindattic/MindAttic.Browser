@@ -2,7 +2,7 @@
 <#
 .SYNOPSIS
     Publishes a standalone Release copy of MindAttic Browser to C:\Apps\MindAttic.Browser\ when the
-    source (or the newest MindAttic.Capture package in C:\LocalNuGet) has changed, and optionally
+    source (or the newest MindAttic.Media.Capture package in C:\LocalNuGet) has changed, and optionally
     launches it. The one script for deploying and launching the Browser.
 
 .DESCRIPTION
@@ -23,7 +23,7 @@
     existing install picks up launcher changes without a republish.
 
     Without -Force this is a fast no-op unless the deployed exe is missing, a source
-    file under this repo is newer than the deployed exe, or a MindAttic.Capture*.nupkg in
+    file under this repo is newer than the deployed exe, or a MindAttic.Media.Capture*.nupkg in
     C:\LocalNuGet is newer than it (the project floats to the newest Capture package, which an
     mtime check on source alone would miss).
 
@@ -93,7 +93,7 @@ function Test-NeedsPublish {
     if (-not (Test-Path $exe)) { return $true }
     $exeTime = (Get-Item $exe).LastWriteTimeUtc
     if (Find-NewerSource $repoDir $exeTime) { return $true }
-    $newerPkg = Get-ChildItem -Path $localNuGet -Filter 'MindAttic.Capture*.nupkg' -File -ErrorAction SilentlyContinue |
+    $newerPkg = Get-ChildItem -Path $localNuGet -Filter 'MindAttic.Media.Capture*.nupkg' -File -ErrorAction SilentlyContinue |
         Where-Object { $_.LastWriteTimeUtc -gt $exeTime } | Select-Object -First 1
     if ($newerPkg) {
         Write-Host "  Newer package: $($newerPkg.FullName)" -ForegroundColor DarkGray

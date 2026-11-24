@@ -1,6 +1,6 @@
 using System.IO;
 using System.Text;
-using MindAttic.Capture;
+using MindAttic.Media.Capture;
 
 namespace MindAttic.Browser;
 

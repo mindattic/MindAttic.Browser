@@ -34,17 +34,17 @@ A screenshot opens over the browser with the whole page selected. Drag to select
 
 ## Quick start
 
-Prerequisites: Windows 10 2004 or later, the .NET 10 SDK, the WebView2 runtime (part of Windows 11), and the MindAttic.Capture packages in `C:\LocalNuGet`:
+Prerequisites: Windows 10 2004 or later, the .NET 10 SDK, the WebView2 runtime (part of Windows 11), and the MindAttic.Media.Capture packages in `C:\LocalNuGet`:
 
 ```powershell
-cd ..\MindAttic.Capture
+cd ..\MindAttic.Media.Capture
 dotnet pack -c Release -o C:\LocalNuGet
 .\tools\install.ps1                      # optional: the capture agent, so recordings export after the browser closes
 cd ..\MindAttic.Browser
 .\run.ps1 -Launch https://example.com
 ```
 
-`run.ps1` republishes to `C:\Apps\MindAttic.Browser\` only when something changed: a source file newer than the deployed exe, a newer `MindAttic.Capture*.nupkg` in `C:\LocalNuGet`, or a missing exe. Otherwise it is a fast no-op. `run.ps1 -Force` always does a clean bin/obj rebuild. Before publishing, it asks a deployed instance that's still open (it might be mid-recording) to close and waits up to 30s; if it's still there, it keeps that build instead of killing it. Every run also writes `C:\Apps\MindAttic.Browser\run.bat`, the desktop shortcut target (`run.ps1 -LauncherOnly` writes just that). A double-click (no arguments) opens a menu: **1) Deploy & Run** (runs `run.ps1 -Force`, then starts the exe) or **2) Run** (starts the deployed exe as is). Started with arguments it skips the menu and never prompts: it runs `run.ps1` (republish only if changed) and forwards the arguments to the exe, so `run.bat <url> -capture video` and other tools (like MindAttic.Web's `capture.ps1`) work exactly like calling the exe itself.
+`run.ps1` republishes to `C:\Apps\MindAttic.Browser\` only when something changed: a source file newer than the deployed exe, a newer `MindAttic.Media.Capture*.nupkg` in `C:\LocalNuGet`, or a missing exe. Otherwise it is a fast no-op. `run.ps1 -Force` always does a clean bin/obj rebuild. Before publishing, it asks a deployed instance that's still open (it might be mid-recording) to close and waits up to 30s; if it's still there, it keeps that build instead of killing it. Every run also writes `C:\Apps\MindAttic.Browser\run.bat`, the desktop shortcut target (`run.ps1 -LauncherOnly` writes just that). A double-click (no arguments) opens a menu: **1) Deploy & Run** (runs `run.ps1 -Force`, then starts the exe) or **2) Run** (starts the deployed exe as is). Started with arguments it skips the menu and never prompts: it runs `run.ps1` (republish only if changed) and forwards the arguments to the exe, so `run.bat <url> -capture video` and other tools (like MindAttic.Web's `capture.ps1`) work exactly like calling the exe itself.
 
 You should see the page with the toolbar above it. Press Ctrl+Shift+S, then Enter: the status bar says where the screenshot was saved and that it is on the clipboard.
 
@@ -55,11 +55,11 @@ MindAttic.Browser.exe                                   # your home page
 MindAttic.Browser.exe youtube.com                       # any URL or search text
 MindAttic.Browser.exe D:\Projects\MindAttic\MindAttic.Web\mindattic.com   # serve a site folder at https://mindattic.com.local/
 MindAttic.Browser.exe page.html --host demo.local       # serve a file's folder under a chosen host name
-MindAttic.Browser.exe https://mindattic.com -capture video 8h   # film the whole visit (MindAttic.Capture flags)
+MindAttic.Browser.exe https://mindattic.com -capture video 8h   # film the whole visit (MindAttic.Media.Capture flags)
 MindAttic.Browser.exe mindattic.com -capture screen 5   # a PNG every 5 seconds
 ```
 
-The `-capture` flags come from [MindAttic.Capture](https://github.com/mindattic/MindAttic.Capture): `video` records the whole session, `screen N` takes a screenshot every N seconds, `hq` uses a hardware HEVC tape, and a duration caps the run. Disk, memory and encoder limits stop long runs automatically.
+The `-capture` flags come from [MindAttic.Media.Capture](https://github.com/mindattic/MindAttic.Media.Capture): `video` records the whole session, `screen N` takes a screenshot every N seconds, `hq` uses a hardware HEVC tape, and a duration caps the run. Disk, memory and encoder limits stop long runs automatically.
 
 ## Where things go
 
@@ -100,4 +100,4 @@ The suite covers command-line targets and address-bar search, favorites (includi
 
 This repo has no LICENSE file. All rights reserved.
 
-Part of [MindAttic](https://mindattic.com): see more projects at [github.com/mindattic](https://github.com/mindattic). Related: [MindAttic.Capture](https://github.com/mindattic/MindAttic.Capture), [MindAttic.Vault](https://github.com/mindattic/MindAttic.Vault), [MindAttic.Web](https://github.com/mindattic/MindAttic.Web).
+Part of [MindAttic](https://mindattic.com): see more projects at [github.com/mindattic](https://github.com/mindattic). Related: [MindAttic.Media.Capture](https://github.com/mindattic/MindAttic.Media.Capture), [MindAttic.Vault](https://github.com/mindattic/MindAttic.Vault), [MindAttic.Web](https://github.com/mindattic/MindAttic.Web).
