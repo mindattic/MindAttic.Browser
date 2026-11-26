@@ -20,7 +20,7 @@ internal static class CaptureFiles
     {
         exists ??= File.Exists;
         var dir = Path.Combine(folder, subject);
-        var stem = Path.Combine(dir, $"{subject}_{CaptureNaming.Timestamp(now)}");
+        var stem = Path.Combine(dir, $"{subject}_{now.ToString("yyyy-MM-dd'T'HH.mm.ss.fff", System.Globalization.CultureInfo.InvariantCulture)}");
         var path = stem + ".png";
         for (var i = 2; exists(path); i++) path = $"{stem}_{i}.png";
         return path;
