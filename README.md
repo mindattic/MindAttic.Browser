@@ -41,10 +41,10 @@ cd ..\MindAttic.Media.Capture
 dotnet pack -c Release -o C:\LocalNuGet
 .\tools\install.ps1                      # optional: the capture agent, so recordings export after the browser closes
 cd ..\MindAttic.Browser
-.\run.ps1 -Launch https://example.com
+.\run.ps1 -Redeploy -RunDebug https://example.com
 ```
 
-`run.ps1` republishes to `C:\Apps\MindAttic.Browser\` only when something changed: a source file newer than the deployed exe, a newer `MindAttic.Media.Capture*.nupkg` in `C:\LocalNuGet`, or a missing exe. Otherwise it is a fast no-op. `run.ps1 -Force` always does a clean bin/obj rebuild. Before publishing, it asks a deployed instance that's still open (it might be mid-recording) to close and waits up to 30s; if it's still there, it keeps that build instead of killing it. Every run also writes `C:\Apps\MindAttic.Browser\run.bat`, the desktop shortcut target (`run.ps1 -LauncherOnly` writes just that). A double-click (no arguments) opens a menu: **1) Deploy & Run** (runs `run.ps1 -Force`, then starts the exe) or **2) Run** (starts the deployed exe as is). Started with arguments it skips the menu and never prompts: it runs `run.ps1` (republish only if changed) and forwards the arguments to the exe, so `run.bat <url> -capture video` and other tools (like MindAttic.Web's `capture.ps1`) work exactly like calling the exe itself.
+`run.ps1` (and `run.bat` beside it, for a double-click) is the MindAttic standard run menu: **1) Redeploy** builds Debug (framework-dependent) and Release (self-contained single file) to `R:\MindAttic\Apps\MindAttic.Browser\Debug` and `\Release`, **2) Run Debug** starts the Debug copy in the console with any extra arguments, **3) Run Release** starts the Release copy as a double-click would. The switches `-Redeploy`, `-RunDebug` and `-RunRelease` skip the menu. Before rebuilding a config, it asks a copy of it that's still open (it might be mid-recording) to close and waits up to 30s; if it's still there, it keeps that build instead of killing it. The Release build also points a Desktop or Start-menu MindAttic.Browser shortcut left on the old `C:\Apps\MindAttic.Browser` install at the new exe. Other tools (MindAttic.Web's `capture.ps1`, `tickets view`, MindAttic.Media.Capture) start `R:\MindAttic\Apps\MindAttic.Browser\Release\MindAttic.Browser.exe` directly.
 
 You should see the page with the toolbar above it. Press Ctrl+Shift+S, then Enter: the status bar says where the screenshot was saved and that it is on the clipboard.
 
@@ -84,7 +84,7 @@ The capture folder defaults to `R:\MindAttic\Media\Capture` (a saved `R:\MindAtt
 MindAttic.Browser/
   src/MindAttic.Browser/        the WPF app: MainWindow, CropWindow, SettingsWindow, settings, favorites, naming
   tests/MindAttic.Browser.Tests NUnit: targets, search, favorites, settings round-trip, file names, crop geometry
-  run.ps1                       publish to C:\Apps\MindAttic.Browser\ when source changed, write its run.bat launcher
+  run.ps1, run.bat              the run menu: Redeploy to R:\MindAttic\Apps\MindAttic.Browser\{Debug,Release}, Run Debug, Run Release
   docs/images/                  README screenshots
 ```
 
