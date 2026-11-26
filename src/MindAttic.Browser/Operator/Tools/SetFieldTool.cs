@@ -49,7 +49,7 @@ public class SetFieldTool : IWebNavTool
                 setter.call(el, {{valueJs}});
                 el.dispatchEvent(new Event('input', { bubbles: true }));
                 el.dispatchEvent(new Event('change', { bubbles: true }));
-                el.blur();
+                el.focus(); // leave it focused: press_enter sends Enter to the focused element
             }
 
             var byId = document.getElementById({{idJs}});
