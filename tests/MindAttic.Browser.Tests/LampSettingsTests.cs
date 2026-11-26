@@ -96,6 +96,17 @@ public class LampSettingsTests
     }
 
     [Test]
+    public void Setting_CaptureFolder_OldDefaultUpgradesToTheMediaRootAndCustomFoldersStay()
+    {
+        WriteToday("""{ "captureFolder": "R:\\MindAttic\\Capture" }""");
+        var running = Store().Load();
+        Assert.That(running.CaptureFolder, Is.EqualTo(BrowserSettings.DefaultCaptureFolder));
+        Assert.That(running.CaptureFolder, Is.EqualTo(@"R:\MindAttic\Media\Capture"));
+        EditInVault(running, s => s.CaptureFolder = @"C:\Caps");
+        Assert.That(running.CaptureFolder, Is.EqualTo(@"C:\Caps"), "a custom folder is kept");
+    }
+
+    [Test]
     public void Setting_CopyToClipboard_ImportsRoundTripsAndReachesTheRunningWindow()
     {
         WriteToday("""{ "copyToClipboard": false }""");

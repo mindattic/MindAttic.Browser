@@ -70,7 +70,7 @@ The `-capture` flags come from [MindAttic.Media.Capture](https://github.com/mind
 | Settings and favorites | `%APPDATA%\MindAttic\MindAttic.Browser\settings.json`, through [MindAttic.Vault](https://github.com/mindattic/MindAttic.Vault) |
 | Browser profile (cookies, cache) | `%LOCALAPPDATA%\MindAttic\Browser` |
 
-The capture folder defaults to `R:\MindAttic\Capture`, or `Pictures\MindAttic Browser` on a machine without that drive. Recordings pick up a new folder at the next launch. Unstarring a favorite marks it removed instead of deleting it, so starring the page again restores it.
+The capture folder defaults to `R:\MindAttic\Media\Capture` (a saved `R:\MindAttic\Capture`, the old default, moves to it), or `Pictures\MindAttic Browser` on a machine without that drive. Recordings pick up a new folder at the next launch. Unstarring a favorite marks it removed instead of deleting it, so starring the page again restores it.
 
 ## Limits
 

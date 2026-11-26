@@ -17,7 +17,10 @@ public sealed class BrowserSettings
 {
     public const string DefaultHomePage = "https://mindattic.com/";
     public const string DefaultSearchUrl = "https://www.bing.com/search?q={query}";
-    public const string DefaultCaptureFolder = @"R:\MindAttic\Capture";
+    public const string DefaultCaptureFolder = @"R:\MindAttic\Media\Capture";
+
+    /// <summary>The default before the MindAttic.Media roots (M.BRWS-T42); a saved copy of it loads as <see cref="DefaultCaptureFolder"/>.</summary>
+    public const string OldDefaultCaptureFolder = @"R:\MindAttic\Capture";
 
     /// <summary>Opened at start (without a URL argument) and by the Home button.</summary>
     [Setting("Home page", Group = "Browsing", Order = 1, Help = "Opened at start (without a URL) and by the Home button.")]
@@ -168,6 +171,7 @@ public sealed class BrowserSettingsStore(JsonSettingsStore<BrowserSettings> stor
     public BrowserSettings Load()
     {
         var settings = store.LoadOrSeed();
+        UpgradeOldDefaults(settings);
         _knownStamp = Stamp();
         return settings;
     }
@@ -204,6 +208,13 @@ public sealed class BrowserSettingsStore(JsonSettingsStore<BrowserSettings> stor
 
     public string Directory => store.Directory;
 
+    /// <summary>A capture folder still on the old default follows the default to its Media root; a custom one is kept.</summary>
+    private static void UpgradeOldDefaults(BrowserSettings settings)
+    {
+        if (string.Equals(settings.CaptureFolder?.TrimEnd('\\'), BrowserSettings.OldDefaultCaptureFolder, StringComparison.OrdinalIgnoreCase))
+            settings.CaptureFolder = BrowserSettings.DefaultCaptureFolder;
+    }
+
     /// <summary>
     /// Copies the setting fields (not favorites or history, which this window owns) from the file into
     /// <paramref name="target"/>, so an edit saved in MindAttic.Vault.Desktop survives the browser's next save.
@@ -218,6 +229,7 @@ public sealed class BrowserSettingsStore(JsonSettingsStore<BrowserSettings> stor
         var stamp = Stamp();
         if (stamp is null || stamp.Value.Item2 == 0 || !store.TryLoad(out var saved)) return false;
         _knownStamp = stamp;
+        UpgradeOldDefaults(saved);
         var changed = target.HomePage != saved.HomePage || target.SearchUrl != saved.SearchUrl || target.CaptureFolder != saved.CaptureFolder
                       || target.CopyToClipboard != saved.CopyToClipboard || target.CropScreenshots != saved.CropScreenshots
                       || !target.PinnedActions.SequenceEqual(saved.PinnedActions);
