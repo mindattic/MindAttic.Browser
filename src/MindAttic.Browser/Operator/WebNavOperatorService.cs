@@ -96,6 +96,14 @@ public class WebNavOperatorService
                 yield break;
             }
 
+            // An empty reply (no text, no tool calls) can't be stored: the API rejects an assistant message with
+            // empty content, which would fail every later request until the conversation was reset.
+            if (turn.Parts.Count == 0)
+            {
+                yield return new OperatorEvent.Error($"{llm.Name} returned an empty reply — try again.");
+                yield break;
+            }
+
             history.Add(new ToolLoopMessage.AssistantTurn(turn.Parts));
 
             var toolResults = new List<ToolResultPart>();
