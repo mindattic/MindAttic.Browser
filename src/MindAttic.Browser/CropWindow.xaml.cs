@@ -136,14 +136,24 @@ public partial class CropWindow : Window
         if (_drag is null) return;
         var p = ImagePoint(e);
         int w = _image.PixelWidth, h = _image.PixelHeight;
+        var before = _box;
         _box = _drag switch
         {
             "draw" => CropMath.FromPoints(_start.X, _start.Y, p.X, p.Y, w, h),
             "move" => CropMath.Move(_box, p.X - _last.X, p.Y - _last.Y, w, h),
             var edges => CropMath.Resize(_box, edges, p.X - _last.X, p.Y - _last.Y, w, h),
         };
-        // Moves and resizes clamp at the image edge; track the clamped position so the box doesn't drift from the cursor.
-        if (_drag != "draw") _last = p;
+        // Moves and resizes clamp at the image edge: advance the reference point only by what the box
+        // actually moved, so pushing past the edge and coming back doesn't drag the box away from the cursor.
+        if (_drag == "move")
+            _last = new Point(_last.X + (_box.X - before.X), _last.Y + (_box.Y - before.Y));
+        else if (_drag != "draw")
+        {
+            var edges = _drag;
+            var ax = edges.Contains('l') ? _box.X - before.X : edges.Contains('r') ? _box.Right - before.Right : p.X - _last.X;
+            var ay = edges.Contains('t') ? _box.Y - before.Y : edges.Contains('b') ? _box.Bottom - before.Bottom : p.Y - _last.Y;
+            _last = new Point(_last.X + ax, _last.Y + ay);
+        }
         Draw();
     }
 
