@@ -46,7 +46,10 @@ public class CheckCheckboxTool : IWebNavTool
                 if (el.id) { var f = document.querySelector('label[for="' + CSS.escape(el.id) + '"]'); if (f) t.push(f.textContent); }
                 t.push(el.getAttribute('aria-label') || '');
                 t.push(el.textContent || '');
-                if (el.parentElement) t.push(el.parentElement.textContent);
+                // The parent's text only stands in for a missing label, and only when this is the parent's sole
+                // checkbox: otherwise siblings sharing the parent would all match a phrase naming one of them.
+                var own = t.join(' ').replace(/\s+/g, ' ').trim();
+                if (!own && el.parentElement && el.parentElement.querySelectorAll('input[type=checkbox], [role=checkbox]').length === 1) t.push(el.parentElement.textContent);
                 return t.join(' ').replace(/\s+/g, ' ').trim().toLowerCase();
             }
             function matches(el) { var t = labelOf(el); return candidates.some(function (c) { return t.indexOf(c) !== -1; }); }
